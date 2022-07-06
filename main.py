@@ -10,13 +10,14 @@ HAPID = ''
 EMAIL = ''
 FIRST_NAME = ''
 SURNAME = ''
-DOB = ''
+DOB = ''  # DD/MM/YYYY
+FEMALE = True  # Is the patient a female patient?
 
 
 def monitor(target_time, female=False):
     opt = webdriver.ChromeOptions()
     opt.add_argument('headless')
-    driver_location = r'C:\Users\liutu\anaconda3\chromedriver.exe'
+    driver_location = r'C:\Users\xxx\anaconda3\chromedriver.exe'  # The location of chrome selenium driver
     driver = webdriver.Chrome(driver_location, options=opt)
     driver.get('https://bmvs.onlineappointmentscheduling.net.au/oasis/')
     time.sleep(1)
@@ -34,9 +35,14 @@ def monitor(target_time, female=False):
     time.sleep(1)
 
     while True:
-        clinic_name = driver.find_element_by_xpath('//*[@id="dvLocationRadioGroup"]/div/table/tbody/tr/td[2]/label').text
-        driver.find_element_by_id('ContentPlaceHolder1_btnCont').click()
-        time.sleep(1)
+        try:
+            clinic_name = driver.find_element_by_xpath('//*[@id="dvLocationRadioGroup"]/div/table/tbody/tr/td[2]/label').text
+            driver.find_element_by_id('ContentPlaceHolder1_btnCont').click()
+            time.sleep(1)
+        except:
+            driver.refresh()
+            time.sleep(1)
+            continue
         try:
             available_time = driver.find_element_by_id(
                 'ContentPlaceHolder1_SelectTime1_divSearchResults').find_element_by_tag_name('h2').text
@@ -96,8 +102,7 @@ def main():
     formatter = logging.Formatter('%(asctime)s: %(message)s')
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
-    target_time = datetime.strptime('Tuesday, 24 May 2022', '%A, %d %B %Y')
-    monitor(target_time, female=True)
+    monitor(TARGET_TIME, female=FEMALE)
 
 
 if __name__ == "__main__":
